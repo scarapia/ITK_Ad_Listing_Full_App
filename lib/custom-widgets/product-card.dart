@@ -1,60 +1,66 @@
-import 'package:ad_listing_full_app/screens/edit-ad.dart';
+import 'package:ad_listing_full_app/screens/product-detail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ad_listing_full_app/screens/product-detail.dart';
 
 class ProductCard extends StatelessWidget {
+  final String productName;
+  final String price;
   final String imageURL;
-  final String title;
-  final double price;
-  final String timesAgo;
+  final String description;
 
-  const ProductCard({
-    Key? key,
-    required this.imageURL,
-    required this.title,
+  const ProductCard({Key? key,
+  required this.productName,
     required this.price,
-    required this.timesAgo,
-  }) : super(key: key);
+    required this.imageURL,
+    required this.description,
+    }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      /* onTap: () {
+  return GestureDetector(
+      onTap: () {
         Get.to(ProductDetailScreen(
-          ptitle: title,
-          pprice: price,
-          ptimesAgo: timesAgo,
-          pimageURL: imageURL,
-          pdescription: "description",
+          detailProductName: productName,
+          detailPrice: price,
+          detailImageURL: imageURL,
+          detailDescription: description,
         ));
       },
-*/
-      onTap: () {
-        Get.to(EditAdScreen());
-      },
-      child: Container(
-        color: Colors.white,
-        margin: EdgeInsets.all(8),
-        padding: EdgeInsets.all(8),
-        child: Row(children: [
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
           Container(
-            height: 100,
-            width: 100,
-            child: Image.asset(imageURL),
-          ),
-          SizedBox(width: 8),
+              height: double.infinity,
+              width: double.infinity,
+              child: Image.network(
+                imageURL,
+                fit: BoxFit.cover,
+              )),
           Container(
+            height: 68,
+            width: double.infinity,
+            padding: const EdgeInsets.all(8),
+            color: Colors.black.withOpacity(0.5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title),
-                Text(timesAgo),
-                Text(price.toString()),
+                Text(
+                  productName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  price,
+                  style: TextStyle(
+                    color: Colors.orange[900],
+                  ),
+                ),
+                
               ],
             ),
-          ),
-        ]),
+          )
+        ],
       ),
     );
   }

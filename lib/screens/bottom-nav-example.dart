@@ -2,7 +2,6 @@ import 'package:ad_listing_full_app/home.dart';
 import 'package:ad_listing_full_app/screens/about.dart';
 import 'package:ad_listing_full_app/screens/contact.dart';
 import 'package:ad_listing_full_app/screens/login-screen.dart';
-import 'package:ad_listing_full_app/screens/signup-screen.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavExample extends StatefulWidget {
@@ -15,7 +14,6 @@ class BottomNavExample extends StatefulWidget {
 class _BottomNavExampleState extends State<BottomNavExample> {
 var _pages = [
     LoginScreen(),
-    SignUpScreen(),
     HomeScreen(),
     AboutScreen(),
     ContactScreen(),

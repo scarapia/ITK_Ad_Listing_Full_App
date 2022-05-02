@@ -1,8 +1,7 @@
 import 'package:ad_listing_full_app/custom-widgets/custom-drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ad_listing_full_app/custom-widgets/product-card.dart';
-import 'package:ad_listing_full_app/screens/product-detail.dart';
+import 'package:ad_listing_full_app/custom-widgets/my-ads-widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -77,21 +76,21 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 child: ListView(
                   children: [
-                    ProductCard(
+                    MyAds(
                       title: "iPhone",
-                      price: 400,
+                      price: 400.toString(),
                       timesAgo: "5 mins ago",
                       imageURL: "images/mobile1.jpeg",
                     ),
-                    ProductCard(
+                    MyAds(
                       title: "Samsung",
-                      price: 500,
+                      price: 500.toString(),
                       timesAgo: "15 mins ago",
                       imageURL: "images/mobile2.jpeg",
                     ),
-                    ProductCard(
+                    MyAds(
                       title: "Android",
-                      price: 4000,
+                      price: 4000.toString(),
                       timesAgo: "50 mins ago",
                       imageURL: "images/mobile2.jpeg",
                     ),

@@ -19,112 +19,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text('Settings'),
       ),
       body: Center(
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    width: 15,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      //print("gfgdgdfg");
-                      //Get.to(EditProfileScreen());
-                    },
-                    child: CircleAvatar(
-                      backgroundImage: ExactAssetImage('images/sundar.png'),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  Column(
-                    children: [Text('sundar'), Text('9876543210')],
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  SizedBox(
-                    width: 150,
-                  ),
-                
-                  TextButton(
-                    onPressed: () {
-                      Get.to(EditProfileScreen());
-                    },
-                    style: TextButton.styleFrom(
-                      primary: Colors.orange[600],
-                    ),
-                    child: Text(
-                      'Edit',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 55,
-                  ),                  
-                ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          //crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ListTile(
+              leading: CircleAvatar(
+            backgroundImage: ExactAssetImage('images/sundar.png'),
               ),
-              Row(
-               // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    height: 55,
-                  ),
-                  SizedBox(width: 25,),
-                                    Icon(Icons.post_add),
-                                                      SizedBox(width: 15,),
-
-                                   // Text('My Ads'),
-                                    TextButton(
-                    onPressed: () {
-                      Get.to(MyAdsScreen());
-                    },
-                    style: TextButton.styleFrom(
-                      primary: Colors.black87,
-                    ),
-                    child: Text(
-                      'My Ads',
-                     // style:
-                       //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                                   
-                ],
+              title: Text('sundar'),
+              subtitle: Text('9876543210'),
+              trailing: TextButton(
+            onPressed: () {
+              Get.to(EditProfileScreen());
+            },
+            style: TextButton.styleFrom(
+              primary: Colors.orange[900],
+            ),
+            child: Text(
+              'Edit',
+              style: TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.bold),
+            ),
               ),
-              Row(
-                 children: [
-                  SizedBox(
-                    height: 55,
-                  ),
-                  SizedBox(width: 25,),
-                                    Icon(Icons.person_outline_outlined),
-                                                      SizedBox(width: 15,),
-
-                                    Text('About us'),
-                 ]
+            ),
+            ListTile(
+              leading: Icon(Icons.post_add),
+              title: TextButton(
+              onPressed: () {
+                Get.to(MyAdsScreen());
+              },
+              style: TextButton.styleFrom(
+                primary: Colors.black87,
               ),
-              Row(
-                 children: [
-                  SizedBox(
-                    height: 55,
-                  ),
-                  SizedBox(width: 25,),
-                                    Icon(Icons.contacts_outlined),
-                                                      SizedBox(width: 15,),
-
-                                    Text('Contact us'),
-                 ]
-              )
-
-
-            ],
-          ),
+              child: Text(
+                'My Ads',
+                // style:
+                //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person_outline_outlined),
+              title: TextButton(
+              onPressed: () {
+               // Get.to(MyAdsScreen());
+              },
+              style: TextButton.styleFrom(
+                primary: Colors.black87,
+              ),
+              child: Text(
+                'About us',
+                // style:
+                //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ),
+            ListTile(
+              leading: Icon(Icons.contacts_outlined),
+              title: TextButton(
+              onPressed: () {
+                //Get.to(MyAdsScreen());
+              },
+              style: TextButton.styleFrom(
+                primary: Colors.black87,
+              ),
+              child: Text(
+                'Contact us',
+                // style:
+                //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ),
+           
+          ],
         ),
       ),
     );

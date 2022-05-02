@@ -1,4 +1,10 @@
+import 'package:ad_listing_full_app/screens/ads-listing.dart';
+import 'package:ad_listing_full_app/screens/create-ad.dart';
 import 'package:ad_listing_full_app/screens/login-screen.dart';
+import 'package:ad_listing_full_app/screens/my-page.dart';
+import 'package:ad_listing_full_app/screens/profile.dart';
+import 'package:ad_listing_full_app/screens/settings.dart';
+import 'package:ad_listing_full_app/screens/signup-screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ad_listing_full_app/home.dart';
 import 'package:ad_listing_full_app/screens/bottom-nav-example.dart';
@@ -15,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
      // home: BottomNavExample(),
-     home: LoginScreen(),
+     home:LoginScreen (),
     );
   }
 }
