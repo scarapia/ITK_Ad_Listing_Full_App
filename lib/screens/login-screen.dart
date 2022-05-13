@@ -25,8 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Auth _auth = Get.put(Auth()); //_auth private
 
   login() async {
-    print(_emailCtrl.text);
-    print(_passwordCtrl.text);
+    //print(_emailCtrl.text);
+    //print(_passwordCtrl.text);
     var res = await http.post(
       Uri.parse(Constants().apiURL + "/auth/login"),
       headers: {'Content-Type': 'application/json'},
@@ -35,11 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
         "password": _passwordCtrl.text,
       }),
     );
-    print(json.decode(res.body));
+    //print(json.decode(res.body));
     var resp = json.decode(res.body);
      if (resp["status"] == true) {
-      print(resp["data"]["token"]);
+     // print(resp["data"]["token"]);
       box.write('token', resp["data"]["token"]);
+       box.write('imgURL', resp["data"]["user"]["imgURL"]);
+      box.write('mobile', resp["data"]["user"]["mobile"]);
 
       
       //Get.offAll( LoginScreen());

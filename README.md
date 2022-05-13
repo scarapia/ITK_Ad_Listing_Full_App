@@ -1,6 +1,6 @@
 # ad_listing_full_app
 
-git branch 25_ad_listing_with_networking && git checkout 25_ad_listing_with_networking && git add . && git commit -m "25_ad_listing_with_networking" && git push --set-upstream origin 25_ad_listing_with_networking
+git branch 25_2_update_dynamic_networking && git checkout 25_2_update_dynamic_networking && git add . && git commit -m "25_2_update_dynamic_networking" && git push --set-upstream origin 25_2_update_dynamic_networking
 
 # ad_listing_full_app
 

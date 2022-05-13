@@ -3,27 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ProductCard extends StatelessWidget {
-  final String productName;
-  final String price;
-  final String imageURL;
-  final String description;
+  final Map objApi;
 
-  const ProductCard({Key? key,
-  required this.productName,
-    required this.price,
-    required this.imageURL,
-    required this.description,
-    }) : super(key: key);
+  const ProductCard({
+    Key? key,
+    required this.objApi,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-  return GestureDetector(
+    return GestureDetector(
       onTap: () {
         Get.to(ProductDetailScreen(
-          detailProductName: productName,
-          detailPrice: price,
-          detailImageURL: imageURL,
-          detailDescription: description,
+          objApi: objApi,
         ));
       },
       child: Stack(
@@ -33,30 +25,29 @@ class ProductCard extends StatelessWidget {
               height: double.infinity,
               width: double.infinity,
               child: Image.network(
-                imageURL,
+                objApi['images'][0],
                 fit: BoxFit.cover,
               )),
           Container(
             height: 68,
             width: double.infinity,
             padding: const EdgeInsets.all(8),
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  productName,
+                  objApi['title'],
                   style: const TextStyle(
                     color: Colors.white,
                   ),
                 ),
                 Text(
-                  price,
+                  objApi['price'].toString(),
                   style: TextStyle(
-                    color: Colors.orange[900],
+                    color: Colors.orange[800],
                   ),
                 ),
-                
               ],
             ),
           )

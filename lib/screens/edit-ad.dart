@@ -1,180 +1,259 @@
-import 'package:ad_listing_full_app/screens/my-ads.dart';
+import 'package:ad_listing_full_app/screens/ads-listing.dart';
+import 'package:ad_listing_full_app/util/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class EditAdScreen extends StatefulWidget {
-  EditAdScreen({Key? key}) : super(key: key);
+  final Map objApi;
+  const EditAdScreen({
+    Key? key,
+    required this.objApi,
+  }) : super(key: key);
 
   @override
   State<EditAdScreen> createState() => _EditAdScreenState();
 }
 
 class _EditAdScreenState extends State<EditAdScreen> {
+  final TextEditingController _titleCtrl = TextEditingController();
+  final TextEditingController _descriptionCtrl = TextEditingController();
+  final TextEditingController _priceCtrl = TextEditingController();
+  final TextEditingController _mobileCtrl = TextEditingController();
+  var _uploadImages = [];
+  var images = [];
+  var _imagesLength;
+  //var _imagePath = "";
+  final box = GetStorage();
+
+  Future readAdData() async {
+    _titleCtrl.text = widget.objApi['title'];
+    _descriptionCtrl.text = widget.objApi['description'];
+    _priceCtrl.text = widget.objApi['price'].toString();
+    _mobileCtrl.text = widget.objApi['mobile'].toString();
+    _uploadImages = widget.objApi['images'];
+
+    setState(() {});
+  }
+
+  pickMultipleImage() async {
+    var images = await ImagePicker().pickMultiImage();
+    if (images!.isNotEmpty) {
+      // upload image
+      var request = http.MultipartRequest(
+          "POST", Uri.parse(Constants().apiURL + '/upload/photos'));
+      images.forEach((image) async {
+        request.files
+            .add(await http.MultipartFile.fromPath('photos', image.path));
+      });
+
+      var res = await request.send();
+      var respData = await res.stream.toBytes();
+      var respStr = String.fromCharCodes(respData);
+      var jsonObj = json.decode(respStr);
+      setState(() {
+        _uploadImages.addAll(jsonObj["data"]["path"]);
+      });
+    } else {
+    }
+  }
+
+  EditAdd() async {
+    var token = box.read('token');
+    var resp = await http.patch(
+      Uri.parse(Constants().apiURL + 'ads/' + widget.objApi['_id']),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: json.encode({
+        "title": _titleCtrl.text,
+        "description": _descriptionCtrl.text,
+        "price": _priceCtrl.text,
+        "mobile": _mobileCtrl.text,
+        "images": _uploadImages,
+      }),
+    );
+    Get.offAll( AdsListingScreen());
+  }
+
+  deleteAdd() async {
+    var token = box.read('token');
+    var resp = await http.delete(
+      Uri.parse(Constants().apiURL + 'ads/' + widget.objApi['_id']),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+    Get.offAll(AdsListingScreen());
+  }
+
+  @override
+  void initState() {
+    readAdData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Edit Ad"),
+        centerTitle: true,
         backgroundColor: Colors.black,
-        title:  Text("Edit Ad"),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(children: [
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.only(
+            top: 16.0,
+            right: 16.0,
+            left: 16.0,
+          ),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Container(
-              height: 200,
-              width: 200,
-              //radius: 55,
-              //backgroundColor: Colors.brown.shade800,
-              child: Stack(
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 16,
+              ),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black12),
+              ),
+              child: Column(
                 children: [
-                  Center(
-                    child: Container(
-                        height: 100,
-                        width: 120,
-                        //color: Colors.white,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                          shape: BoxShape.rectangle,
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 2,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      width: 0.0, color: Colors.white),
-                                ),
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  size: 50,
-                                  color: Colors.grey,
-                                ),
-                                onPressed: () {}),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text('Tap to upload'),
-                          ],
-                        )),
+                  IconButton(
+                      onPressed: () {
+                        pickMultipleImage();
+                      },
+                      icon: const Icon(
+                        Icons.add_a_photo_outlined,
+                        size: 32.0,
+                      )),
+                  const SizedBox(
+                    height: 4.0,
                   ),
-
-                  // Text('Tap to upload'),
+                  const Text("Tap to upload"),
                 ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8),
+                scrollDirection: Axis.horizontal,
+                itemCount: _uploadImages.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    child: Image.network(
+                      _uploadImages[index],
+                      height: 80,
+                      width: 80,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            TextField(
+              controller: _titleCtrl,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Title',
+              ),
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            TextField(
+              controller: _priceCtrl,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Price',
+              ),
+              keyboardType: TextInputType.number, //Numbers-Only-Keyboard
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            TextField(
+              controller: _mobileCtrl,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Contact Number',
+              ),
+              keyboardType: TextInputType.number, //Numbers-Only-Keyboard
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            TextField(
+              controller: _descriptionCtrl,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Description',
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 40,
+                  horizontal: 12,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 28,
+            ),
+            SizedBox(
+              width: 360,
+              height: 60,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.orange[800],
+                ),
+                onPressed: () {
+                  EditAdd();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Text(
+                      "Edit Ad",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             SizedBox(
-              width: 10,
-            ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 2,
+              width: 360,
+              height: 52,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  primary: Colors.orange[800],
+                ),
+                onPressed: () {
+                  deleteAdd();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Text(
+                      "Delete Ad",
+                      style: TextStyle(
+                        fontSize: 18,
                       ),
                     ),
-                    width: 60,
-                    height: 60,
-                    child: Image.asset(
-                      'images/apple-macbook-pro-m1.jpeg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 2,
-                      ),
-                    ),
-                    width: 60,
-                    height: 60,
-                    child: Image.asset(
-                      'images/apple-macbook-pro-m1.jpeg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 2,
-                      ),
-                    ),
-                    width: 60,
-                    height: 60,
-                    child: Image.asset(
-                      'images/apple-macbook-pro-m1.jpeg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(), hintText: "Title"),
-                  ),
-                  SizedBox(height: 20),
-                  TextField(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(), hintText: "Price"),
-                  ),
-                  SizedBox(height: 20),
-                  TextField(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Contact Number "),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    width: 400,
-
-                    //height: 200,
-                    child: TextField(
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: "Description "),
-                        style: TextStyle(height: 4.0)),
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.to(MyAdsScreen());
-                    },
-                    child: Text("Submit Ad"),
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(500, 50),
-                        primary: Colors.orange[900],
-                        textStyle: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold)),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ]),

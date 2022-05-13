@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 
 class CreateAdScreen extends StatefulWidget {
   CreateAdScreen({Key? key}) : super(key: key);
@@ -162,6 +163,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                             border: OutlineInputBorder(),
                             labelText: 'Price',
                           ),
+                          keyboardType: TextInputType.number, //Numbers-Only-Keyboard
                         ),
                         const SizedBox(
                           height: 8,
@@ -173,6 +175,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                             border: OutlineInputBorder(),
                             labelText: 'Contact Number',
                           ),
+                           keyboardType: TextInputType.number, //Numbers-Only-Keyboard
                         ),
                         const SizedBox(
                           height: 8,

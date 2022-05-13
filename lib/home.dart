@@ -1,7 +1,6 @@
 import 'package:ad_listing_full_app/custom-widgets/custom-drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ad_listing_full_app/custom-widgets/my-ads-widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -72,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            Expanded(
+            /*Expanded(
               child: Container(
                 child: ListView(
                   children: [
@@ -98,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            */
           ],
         ),
       ),

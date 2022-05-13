@@ -1,76 +1,81 @@
 import 'package:ad_listing_full_app/screens/edit-ad.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 class MyAds extends StatelessWidget {
-  final String imageURL;
-  final String title;
-  final String price;
-  final String timesAgo;
+  final Map objApi;
 
   const MyAds({
     Key? key,
-    required this.imageURL,
-    required this.title,
-    required this.price,
-    required this.timesAgo,
+    required this.objApi,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      /* onTap: () {
-        Get.to(ProductDetailScreen(
-          ptitle: title,
-          pprice: price,
-          ptimesAgo: timesAgo,
-          pimageURL: imageURL,
-          pdescription: "description",
-        ));
-      },
-*/
-      onTap: () {
-        Get.to(EditAdScreen());
-      },
-      child: Container(
-        //color: Colors.white,
-        margin: EdgeInsets.all(8),
-        padding: EdgeInsets.all(8),
-           decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    shape: BoxShape.rectangle,
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                      width: 2,
-                    ),
+        onTap: () {
+          Get.to(EditAdScreen(
+            objApi: objApi,
+          ));
+        },
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              height: 120,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black12),
               ),
-        
-        child: Row(children: [
-          Container(
-            height: 100,
-            width: 100,
-            child: Image.network(imageURL),
-            
-          ),
-          SizedBox(width: 8),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title),
-                Text(timesAgo),
-                Text(price.toString(), style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange[900]),),
-                
-              ],
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Image.network(
+                  objApi['images'][0],
+                  fit: BoxFit.cover,
+                  height: 120,
+                  width: 80,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        objApi['title'],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Row(
+                        children: [
+                          const Icon(Icons.alarm_on,
+                              size: 12, color: Colors.black45),
+                          Text(
+                            objApi["createdAt"],
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        objApi['price'].toString(),
+                        style: TextStyle(
+                            color: Colors.orange[800],
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
             ),
-
-          ),
-        ]),
-        
-      ),
-    );
+          ],
+        ));
   }
 }

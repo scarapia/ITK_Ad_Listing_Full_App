@@ -1,9 +1,11 @@
-import 'package:ad_listing_full_app/custom-widgets/product-card.dart';
+import 'package:ad_listing_full_app/custom-widgets/product-card-widget.dart';
+//import 'package:ad_listing_full_app/custom-widgets/product-card.dart';
 import 'package:ad_listing_full_app/screens/create-ad.dart';
 import 'package:ad_listing_full_app/screens/settings.dart';
 import 'package:ad_listing_full_app/util/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -15,12 +17,25 @@ class AdsListingScreen extends StatefulWidget {
 }
 
 class _AdsListingScreenState extends State<AdsListingScreen> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    this.getAds();
-    super.initState();
-    
+  final box = GetStorage();
+  String _profileImage = "";
+  //List objApi = [];
+
+  readUserData() async {
+    var token = box.read('token');
+    var resp = await http.post(
+      Uri.parse(Constants().apiURL + '/user/profile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+    var tmp = json.decode(resp.body);
+
+    if (tmp['status'] == true) {
+      _profileImage = tmp['data']['imgURL'];
+      setState(() {});
+    }
   }
 
   var _ads = [];
@@ -35,17 +50,25 @@ class _AdsListingScreenState extends State<AdsListingScreen> {
         .then((resp) {
       // print("Responce happened, then executed");
       // print(res.body);
-      print(json.decode(resp.body));
+      //print(json.decode(resp.body));
       var temp = json.decode(resp.body);
       setState(() {
         _ads = temp["data"];
       });
 
-      print(_ads[0]['images'][0]);
+      //print(_ads[0]['images'][0]);
     }).catchError((err) {
       print("Error happened, catch executed");
       print(err);
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    this.getAds();
+    readUserData();
+    super.initState();
   }
 
   Widget build(BuildContext context) {
@@ -59,10 +82,10 @@ class _AdsListingScreenState extends State<AdsListingScreen> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>  SettingsScreen()));
+                            builder: (context) => SettingsScreen()));
                   },
                   child: CircleAvatar(
-                    backgroundImage: ExactAssetImage('images/sundar.png'),
+                    backgroundImage: NetworkImage(_profileImage),
                   ),
                 ),
               ],
@@ -86,16 +109,15 @@ class _AdsListingScreenState extends State<AdsListingScreen> {
                       maxCrossAxisExtent: 200),
                   itemCount: _ads.length,
                   itemBuilder: (BuildContext context, index) {
-                    return ProductCard(
+                    return ProductCard(objApi: _ads[index]);
+                    /*ProductCard(
                         productName: _ads[index]['title'],
                         price: _ads[index]['price'].toString(),
                         imageURL: _ads[index]['images'][0],
-                        description: _ads[index]['description']);
+                        description: _ads[index]['description']
+                        );
+                        */
                   }),
-            )
-
-            
-
-            ));
+            )));
   }
 }

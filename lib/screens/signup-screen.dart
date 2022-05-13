@@ -22,10 +22,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final box = GetStorage();
 
   signup() async {
-    print(_nameCtrl.text);
-    print(_emailCtrl.text);
-    print(_passwordCtrl.text);
-    print(_mobileCtrl.text);
+    //print(_nameCtrl.text);
+    //print(_emailCtrl.text);
+    //print(_passwordCtrl.text);
+    //print(_mobileCtrl.text);
 
     //esta variable contiene la peticion a register
     //response of request
@@ -40,10 +40,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }),
     );
     
-    print(json.decode(resp.body));
+    //print(json.decode(resp.body));
     var tmp = json.decode(resp.body);
     if (tmp["status"] == true) {
-      print(tmp["data"]["token"]);
+      //print(tmp["data"]["token"]);
       box.write('token', tmp["data"]["token"]);
 
       
