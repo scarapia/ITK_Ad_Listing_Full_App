@@ -1,6 +1,8 @@
 import 'package:ad_listing_full_app/screens/edit-profile.dart';
 import 'package:ad_listing_full_app/screens/my-ads.dart';
 import 'package:ad_listing_full_app/util/constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -16,28 +18,27 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _name = "";
-  String _mobile = "";
-  var _profileImage = "";
-  final box = GetStorage();
+   var userObj = {};
+  var _imageURL = "";
+  var _userName = "";
+  var _userMobile = "";
+  final TextEditingController _mobileCtrl = TextEditingController();
 
-  readUserData() async {
-    var token = box.read('token');
-    var resp = await http.post(
-      Uri.parse(Constants().apiURL + '/user/profile'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-    );
-    var tmp = json.decode(resp.body);
-
-    if (tmp['status'] == true) {
-      _name = tmp['data']['name'];
-      _mobile = tmp['data']['mobile'];
-      _profileImage = tmp['data']['imgURL'];
-      setState(() {});
-    }
+  getUserData()  {
+     FirebaseFirestore.instance
+        .collection("accounts")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((res) {
+      setState(
+        () {
+          userObj = {"id": res.id, ...res.data()!};
+         _userName = userObj['displayName'].toString();
+          _mobileCtrl.text = userObj['mobile'].toString();
+          _imageURL = userObj['imageURL'].toString();
+        },
+      );
+    });
   }
 
   openURL(url) async {
@@ -48,7 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    readUserData();
+    getUserData();
     super.initState();
   }
 
@@ -56,86 +57,146 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Seetings"),
         backgroundColor: Colors.black,
-        title: Text('Settings'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          //crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage(_profileImage),
-              ),
-              title: Text(_name),
-              subtitle: Text(_mobile),
-              trailing: TextButton(
-                onPressed: () {
-                  Get.to(EditProfileScreen());
-                },
-                style: TextButton.styleFrom(
-                  primary: Colors.orange[900],
-                ),
-                child: Text(
-                  'Edit',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.post_add),
-              title: TextButton(
-                onPressed: () {
-                  Get.to(MyAdsScreen());
-                },
-                style: TextButton.styleFrom(
-                  primary: Colors.black87,
-                ),
-                child: Text(
-                  'My Ads',
-                  // style:
-                  //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.person_outline_outlined),
-              title: TextButton(
-                onPressed: () {
-                  openURL("https://pub.dev/");
-                  // Get.to(MyAdsScreen());
-                },
-                style: TextButton.styleFrom(
-                  primary: Colors.black87,
-                ),
-                child: Text(
-                  'About us',
-                  // style:
-                  //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.contacts_outlined),
-              title: TextButton(
-                onPressed: () {
-                  openURL("tel:" + _mobile);
-                  //Get.to(MyAdsScreen());
-                },
-                style: TextButton.styleFrom(
-                  primary: Colors.black87,
-                ),
-                child: Text(
-                  'Contact us',
-                  // style:
-                  //   TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      body: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+        ),
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          //backgroundColor: Colors.black,
+                          backgroundImage: NetworkImage(
+                            _imageURL,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _userName,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 4,
+                            ),
+                            Text(
+                              _userMobile,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.black38,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          Get.to(const EditProfileScreen());
+                        },
+                        child: Text(
+                          "Edit",
+                          style: TextStyle(
+                            color: Colors.orange[900],
+                          ),
+                        )),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  const Icon(
+                    Icons.add_a_photo_outlined,
+                    color: Colors.black45,
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        Get.to(MyAdsScreen());
+                      },
+                      child: const Text(
+                        "My Ads",
+                        style: const TextStyle(color: Colors.black),
+                      ))
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  const Icon(
+                    Icons.person,
+                    color: Colors.black45,
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        openURL("https:flutter.dev");
+                      },
+                      child: const Text(
+                        "About Us",
+                        style: TextStyle(color: Colors.black),
+                      ))
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  const Icon(
+                    Icons.contacts,
+                    color: Colors.black45,
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        openURL("tel:" + _mobileCtrl.text);
+                      },
+                      child: const Text(
+                        "Contact Us",
+                        style: TextStyle(color: Colors.black),
+                      ))
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+  
+ 

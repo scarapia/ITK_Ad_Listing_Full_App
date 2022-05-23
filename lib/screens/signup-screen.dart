@@ -1,5 +1,7 @@
 import 'package:ad_listing_full_app/screens/login-screen.dart';
 import 'package:ad_listing_full_app/util/constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -14,42 +16,48 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _nameCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _passwordCtrl = TextEditingController();
-  final TextEditingController _mobileCtrl = TextEditingController();
 
-  final box = GetStorage();
+   TextEditingController _nameCtrl = TextEditingController();
+  TextEditingController _emailCtrl = TextEditingController();
+  TextEditingController _passwordCtrl = TextEditingController();
+  TextEditingController _mobileCtrl = TextEditingController();
 
-  signup() async {
-    //print(_nameCtrl.text);
-    //print(_emailCtrl.text);
-    //print(_passwordCtrl.text);
-    //print(_mobileCtrl.text);
-
-    //esta variable contiene la peticion a register
-    //response of request
-    var resp = await http.post(
-      Uri.parse(Constants().apiURL + "/auth/register"),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        "name": _nameCtrl.text,
-        "email": _emailCtrl.text,
-        "password": _passwordCtrl.text,
-        "mobile": _mobileCtrl.text,
-      }),
-    );
-    
-    //print(json.decode(resp.body));
-    var tmp = json.decode(resp.body);
-    if (tmp["status"] == true) {
-      //print(tmp["data"]["token"]);
-      box.write('token', tmp["data"]["token"]);
-
-      
+  register() {
+    FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+      email: _emailCtrl.text,
+      password: _passwordCtrl.text,
+    )
+        .then((value) {
+      print("Login Success");
+      insertToFirestore();
+      // Get.to(HomeScreen());
       Get.offAll( LoginScreen());
-    }
+    }).catchError((e) {
+      print(e);
+    });
   }
+
+  insertToFirestore() {
+    // FirebaseFirestore.instance.collection("accounts").add({
+    //   "uid": FirebaseAuth.instance.currentUser!.uid,
+    //   "displayName": _nameCtrl.text,
+    //   "email": _emailCtrl.text,
+    //   "mobile": _mobileCtrl.text,
+    //   "createdAt": FieldValue.serverTimestamp()
+    // });
+    var uid = FirebaseAuth.instance.currentUser!.uid;
+    FirebaseFirestore.instance.collection("accounts").doc(uid).set({
+      "uid": FirebaseAuth.instance.currentUser!.uid,
+      "displayName": _nameCtrl.text,
+      "email": _emailCtrl.text,
+      "mobile": _mobileCtrl.text,
+      "createdAt": FieldValue.serverTimestamp()
+    });
+  }
+  
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,6 +125,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           border: OutlineInputBorder(),
                           labelText: 'Mobile Number',
                         ),
+                        keyboardType:
+                            TextInputType.number, //Nu
                       ),
                       const SizedBox(
                         height: 8,
@@ -140,7 +150,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             primary: Colors.orange[900],
                           ),
                           onPressed: () {
-                            signup();
+                            register();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

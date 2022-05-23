@@ -34,6 +34,7 @@ class _AdsListingScreenState extends State<AdsListingScreen> {
 
     if (tmp['status'] == true) {
       _profileImage = tmp['data']['imgURL'];
+      //print("Imagegfgdgfg $_profileImage");
       setState(() {});
     }
   }
@@ -100,24 +101,32 @@ class _AdsListingScreenState extends State<AdsListingScreen> {
             ),
             body: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      //crossAxisCount: 2,
-                      childAspectRatio: 2 / 2.5,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                      maxCrossAxisExtent: 200),
-                  itemCount: _ads.length,
-                  itemBuilder: (BuildContext context, index) {
-                    return ProductCard(objApi: _ads[index]);
-                    /*ProductCard(
+              child: _ads.isEmpty
+                  ? Container(
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.only(top: 20),
+                      child:  CircularProgressIndicator(
+                        value: 2,
+                      ))
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                              //crossAxisCount: 2,
+                              childAspectRatio: 2 / 2.5,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                              maxCrossAxisExtent: 200),
+                      itemCount: _ads.length,
+                      itemBuilder: (BuildContext context, index) {
+                        return ProductCard(objApi: _ads[index]);
+                        /*ProductCard(
                         productName: _ads[index]['title'],
                         price: _ads[index]['price'].toString(),
                         imageURL: _ads[index]['images'][0],
                         description: _ads[index]['description']
                         );
                         */
-                  }),
+                      }),
             )));
   }
 }

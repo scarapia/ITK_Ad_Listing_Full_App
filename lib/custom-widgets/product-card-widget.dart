@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ProductCard extends StatelessWidget {
-  final Map objApi;
+  //final Map objApi;
+   var objApi = {};
 
-  const ProductCard({
+   ProductCard({
     Key? key,
     required this.objApi,
   }) : super(key: key);
@@ -25,7 +26,7 @@ class ProductCard extends StatelessWidget {
               height: double.infinity,
               width: double.infinity,
               child: Image.network(
-                objApi['images'][0],
+                objApi['images'],
                 fit: BoxFit.cover,
               )),
           Container(

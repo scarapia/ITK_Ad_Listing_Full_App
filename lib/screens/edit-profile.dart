@@ -1,11 +1,19 @@
+import 'package:ad_listing_full_app/controllers/auth-controller.dart';
+import 'package:ad_listing_full_app/controllers/profile-controller.dart';
 import 'package:ad_listing_full_app/screens/ads-listing.dart';
 import 'package:ad_listing_full_app/screens/login-screen.dart';
 import 'package:ad_listing_full_app/util/constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:math';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -15,81 +23,64 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _mobileCtrl = TextEditingController();
-  var _profileImage = "";
-  var _imagePath = "";
-  final box = GetStorage();
+  var userObj = {};
+  var _imageURL = "https://picsum.photos/200/300";
+  ProfileController _profileCtrl = Get.put(ProfileController());
+  AuthController _authCtrl = AuthController();
+  TextEditingController _nameCtrl = TextEditingController();
+  TextEditingController _emailCtrl = TextEditingController();
+  TextEditingController _mobileCtrl = TextEditingController();
 
-  readUserData() async {
-    var token = box.read('token');
-    var resp = await http.post(
-      Uri.parse(Constants().apiURL + '/user/profile'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-    );
-    var tmp = json.decode(resp.body);
+  var _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
 
-    if (tmp['status'] == true) {
-      _nameCtrl.text = tmp['data']['name'];
-      _emailCtrl.text = tmp['data']['email'];
-      _mobileCtrl.text = tmp['data']['mobile'];
-      _profileImage = tmp['data']['imgURL'];
-      setState(() {});
-    }
-  }
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
-  pickImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _imagePath = image.path;
-      });
-    } else {}
-  }
-
-  updateProfile() async {
-    // upload image
-    var request = http.MultipartRequest(
-        "POST", Uri.parse(Constants().apiURL + 'upload/profile'));
-    request.files.add(await http.MultipartFile.fromPath('avatar', _imagePath));
-    var res = await request.send();
-    var respData = await res.stream.toBytes();
-    var respStr = String.fromCharCodes(respData);
-    var jsonObj = json.decode(respStr);
-
-    setState(() {
-      _profileImage = jsonObj["data"]["path"];
+  getUserData() {
+    FirebaseFirestore.instance
+        .collection("accounts")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((res) {
+      setState(
+        () {
+          userObj = {"id": res.id, ...res.data()!};
+          _nameCtrl.text = userObj['displayName'];
+          _emailCtrl.text = userObj['email'];
+          _mobileCtrl.text = userObj['mobile'];
+          _imageURL = userObj['imageURL'];
+        },
+      );
     });
-
-    // update petition
-    var token = box.read('token');
-    var resp = await http.patch(
-      Uri.parse(Constants().apiURL + 'user/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-      body: json.encode({
-        "name": _nameCtrl.text,
-        "email": _emailCtrl.text,
-        "mobile": _mobileCtrl.text,
-        "imgURL": _profileImage,
-      }),
-    );
   }
 
   @override
   void initState() {
-    readUserData();
-
+    // TODO: implement initState
     super.initState();
+    getUserData();
   }
 
+  uploadImage() async {
+    var filePath = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (filePath!.path.length != 0) {
+      File file = File(filePath.path);
+      var storageRef = await FirebaseStorage.instance
+          .ref()
+          .child("uploads")
+          .child(getRandomString(12))
+          .putFile(file);
+
+      var uploadedURL = await storageRef.ref.getDownloadURL();
+      setState(() {
+        _imageURL = uploadedURL;
+      });
+      _profileCtrl.updateProfile({"imageURL": _imageURL});
+    }
+  }
+
+ 
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -106,14 +97,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    pickImage();
+                    //pickImage();
+                    uploadImage();
                   },
                   child: Container(
                     height: 100,
                     width: 100,
                     child: CircleAvatar(
-                      backgroundColor: Colors.black,
-                      backgroundImage: NetworkImage(_profileImage),
+                      //backgroundColor: Colors.black,
+                      //backgroundImage: NetworkImage(_profileImage),
+                      backgroundImage: NetworkImage(_imageURL),
+                      radius: 40,
                     ),
                   ),
                 ),
@@ -160,11 +154,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     primary: Colors.orange[800],
                   ),
                   onPressed: () {
-                    updateProfile();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AdsListingScreen()));
+                    // updateProfile();
+                    _profileCtrl.updateProfile({
+                      "displayName": _nameCtrl.text,
+                      "mobile": _mobileCtrl.text,
+                      "email": _emailCtrl.text
+                    });
+                    //Navigator.push(
+                    //  context,
+                    //MaterialPageRoute(
+                    //  builder: (context) => AdsListingScreen()));
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -192,6 +191,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     primary: Colors.orange[900],
                   ),
                   onPressed: () {
+                    _authCtrl.logout();
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => LoginScreen()));
                   },

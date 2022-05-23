@@ -1,8 +1,16 @@
 import 'package:ad_listing_full_app/home.dart';
+import 'package:ad_listing_full_app/screens/add-task.dart';
+import 'package:ad_listing_full_app/screens/ads-lisiting-2-firebase.dart';
 import 'package:ad_listing_full_app/screens/ads-listing.dart';
+import 'package:ad_listing_full_app/screens/create-ad-2-firebase.dart';
+import 'package:ad_listing_full_app/screens/edit-profile.dart';
+import 'package:ad_listing_full_app/screens/home-validation.dart';
+import 'package:ad_listing_full_app/screens/profile-2-firebase.dart';
+import 'package:ad_listing_full_app/screens/settings.dart';
 import 'package:ad_listing_full_app/screens/signup-screen.dart';
 import 'package:ad_listing_full_app/services/auth.dart';
 import 'package:ad_listing_full_app/util/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -17,43 +25,26 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController _emailCtrl =
-      TextEditingController(text: "sergio@sergio.com");
+
+TextEditingController _emailCtrl = TextEditingController(text: "scfactor@hotmail.com");
   TextEditingController _passwordCtrl = TextEditingController(text: "123456");
-  final box = GetStorage();
 
-  Auth _auth = Get.put(Auth()); //_auth private
-
-  login() async {
-    //print(_emailCtrl.text);
-    //print(_passwordCtrl.text);
-    var res = await http.post(
-      Uri.parse(Constants().apiURL + "/auth/login"),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        "email": _emailCtrl.text,
-        "password": _passwordCtrl.text,
-      }),
-    );
-    //print(json.decode(res.body));
-    var resp = json.decode(res.body);
-     if (resp["status"] == true) {
-     // print(resp["data"]["token"]);
-      box.write('token', resp["data"]["token"]);
-       box.write('imgURL', resp["data"]["user"]["imgURL"]);
-      box.write('mobile', resp["data"]["user"]["mobile"]);
-
-      
-      //Get.offAll( LoginScreen());
-    }
-    
-    
-    //print(resp);
-    _auth.token.value = resp["data"]["token"];
-    Get.offAll(AdsListingScreen()); // go to adslisting
-    //print(resp["data"]["token"]);
+  login() {
+    FirebaseAuth.instance
+        .signInWithEmailAndPassword(
+      email: _emailCtrl.text,
+      password: _passwordCtrl.text,
+    )
+        .then((res) {
+          print(res);
+      print("Login Success");
+      Get.to(AdsListingsScreen2Firebase());
+    }).catchError((e) {
+      print(e);
+    });
   }
 
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

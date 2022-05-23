@@ -11,13 +11,16 @@ class MyAds extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return /*GestureDetector(
         onTap: () {
           Get.to(EditAdScreen(
             objApi: objApi,
           ));
         },
-        child: Stack(
+        
+        child:
+        */
+         Stack(
           alignment: Alignment.bottomCenter,
           children: [
             Container(
@@ -29,7 +32,7 @@ class MyAds extends StatelessWidget {
               ),
               child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                 Image.network(
-                  objApi['images'][0],
+                  objApi['images'],
                   fit: BoxFit.cover,
                   height: 120,
                   width: 80,
@@ -55,7 +58,7 @@ class MyAds extends StatelessWidget {
                           const Icon(Icons.alarm_on,
                               size: 12, color: Colors.black45),
                           Text(
-                            objApi["createdAt"],
+                            "createdAt",
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.black54),
                           ),
@@ -76,6 +79,6 @@ class MyAds extends StatelessWidget {
               ]),
             ),
           ],
-        ));
+        );
   }
 }

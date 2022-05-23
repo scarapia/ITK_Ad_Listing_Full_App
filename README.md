@@ -1,6 +1,6 @@
 # ad_listing_full_app
 
-git branch 25_2_update_dynamic_networking && git checkout 25_2_update_dynamic_networking && git add . && git commit -m "25_2_update_dynamic_networking" && git push --set-upstream origin 25_2_update_dynamic_networking
+git branch 27_ad_listing_with_firebase && git checkout 27_ad_listing_with_firebase && git add . && git commit -m "27_ad_listing_with_firebase" && git push --set-upstream origin 27_ad_listing_with_firebase
 
 # ad_listing_full_app
 
